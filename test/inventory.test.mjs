@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateInventoryDashboard, calculateMaterialRequirements } from '../src/inventory.mjs';
+import { calculateInventoryDashboard, calculateMaterialRequirements, calculateProductionFlow } from '../src/inventory.mjs';
 
 test('calculates stockout risk and reorder needs from inventory assumptions', () => {
   const dashboard = calculateInventoryDashboard([
@@ -60,4 +60,27 @@ test('does not invent stockout days when daily usage is zero', () => {
 
   assert.equal(dashboard.items[0].stockoutDays, null);
   assert.equal(dashboard.items[0].risk, '계산 불가');
+});
+
+test('builds a date-ordered production flow with projected material stock and shortages', () => {
+  const flow = calculateProductionFlow({
+    items: [
+      { code: 'FG-01', name: '완제품', openingStock: 0, safetyStock: 0 },
+      { code: 'MAT-01', name: '부품', openingStock: 10, safetyStock: 3 },
+    ],
+    productionPlans: [
+      { date: '2026-05-02', itemCode: 'FG-01', plannedQuantity: 4 },
+      { date: '2026-05-01', itemCode: 'FG-01', plannedQuantity: 3 },
+    ],
+    bomLines: [{ parentItemCode: 'FG-01', componentItemCode: 'MAT-01', quantityRequired: 2 }],
+  });
+
+  assert.deepEqual(flow.map((row) => row.date), ['2026-05-01', '2026-05-02']);
+  assert.equal(flow[0].materialImpacts[0].requiredQuantity, 6);
+  assert.equal(flow[0].materialImpacts[0].projectedStock, 4);
+  assert.equal(flow[0].materialImpacts[0].risk, '정상');
+  assert.equal(flow[1].materialImpacts[0].requiredQuantity, 8);
+  assert.equal(flow[1].materialImpacts[0].projectedStock, -4);
+  assert.equal(flow[1].materialImpacts[0].shortageQuantity, 7);
+  assert.equal(flow[1].materialImpacts[0].risk, '생산중단 위험');
 });

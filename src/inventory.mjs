@@ -72,6 +72,45 @@ export function calculateMaterialRequirements({ productionPlans = [], bomLines =
   }).sort((a, b) => b.netShortage - a.netShortage);
 }
 
+export function calculateProductionFlow({ productionPlans = [], bomLines = [], items = [], transactions = [] } = {}) {
+  const itemByCode = new Map(items.map((item) => [itemCode(item), item]));
+  const projectedStocks = new Map(items.map((item) => [itemCode(item), calculateItemStock(item, transactions)]));
+  const sortedPlans = [...productionPlans].sort((a, b) => String(a.date ?? '').localeCompare(String(b.date ?? '')));
+
+  return sortedPlans.map((plan) => {
+    const planItemCode = plan.itemCode ?? plan.parentItemCode;
+    const plannedQuantity = number(plan.plannedQuantity ?? plan.quantity);
+    const requirements = new Map();
+    for (const line of bomLines.filter((entry) => entry.parentItemCode === planItemCode)) {
+      const code = line.componentItemCode ?? line.itemCode;
+      requirements.set(code, (requirements.get(code) ?? 0) + plannedQuantity * number(line.quantityRequired));
+    }
+
+    const materialImpacts = [...requirements.entries()].map(([code, requiredQuantity]) => {
+      const item = itemByCode.get(code) ?? { code, name: code, safetyStock: 0 };
+      const beforeStock = projectedStocks.get(code) ?? 0;
+      const projectedStock = beforeStock - requiredQuantity;
+      const safetyStock = number(item.safetyStock);
+      const shortageQuantity = Math.max(0, safetyStock - projectedStock);
+      const risk = projectedStock < 0 ? '생산중단 위험' : shortageQuantity > 0 ? '안전재고 하회' : '정상';
+      projectedStocks.set(code, projectedStock);
+      return { code, name: item.name ?? code, unit: item.unit ?? 'EA', beforeStock, requiredQuantity, projectedStock, safetyStock, shortageQuantity, risk };
+    });
+
+    return {
+      date: plan.date ?? '날짜 미정',
+      itemCode: planItemCode,
+      itemName: itemByCode.get(planItemCode)?.name ?? planItemCode,
+      plannedQuantity,
+      status: plan.status ?? '계획',
+      materialImpacts,
+      totalRequired: materialImpacts.reduce((sum, item) => sum + item.requiredQuantity, 0),
+      shortageTotal: materialImpacts.reduce((sum, item) => sum + item.shortageQuantity, 0),
+      riskCount: materialImpacts.filter((item) => item.risk !== '정상').length,
+    };
+  });
+}
+
 export function calculateInventoryDashboard(input = []) {
   const { items = [], transactions = [], productionPlans = [], bomLines = [], supplierOrders = [], supplierReceipts = [] } = inputParts(input);
   const requirements = calculateMaterialRequirements({ productionPlans, bomLines, items, transactions, supplierOrders, supplierReceipts });

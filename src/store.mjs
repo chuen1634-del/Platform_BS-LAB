@@ -8,7 +8,7 @@ function readStorage(storage) {
 }
 function writeStorage(storage, projects) { if (storage instanceof Map) storage.set(KEY, projects); else storage.setItem(KEY, JSON.stringify(projects)); }
 function id(prefix) { return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`; }
-function emptyInventory() { return { items: [], transactions: [], productionPlans: [], shipmentPlans: [], bomLines: [], supplierOrders: [], supplierReceipts: [] }; }
+function emptyInventory() { return { items: [], transactions: [], productionPlans: [], shipmentPlans: [], bomLines: [], supplierOrders: [], supplierReceipts: [], sourceSummary: '' }; }
 function requireNonNegativeQuantity(value) { if (value === undefined || value === null || value === '') return 0; const quantity = Number(value); if (!Number.isFinite(quantity) || quantity < 0) throw new Error('수량은 0 이상이어야 합니다.'); return quantity; }
 function migrateProject(project) {
   if (project.customers?.length) {
@@ -56,6 +56,12 @@ export function createStore({ storage = globalThis.localStorage } = {}) {
       const projects = list(); const project = projects.find((item) => item.id === projectId); if (!project) throw new Error('프로젝트를 찾을 수 없습니다.');
       const customer = resolveCustomer(project, customerId); if (!customer) throw new Error('고객사를 찾을 수 없습니다.');
       customer.roi = businessCase.roi ?? null; customer.poc = businessCase.poc ?? null; updateProject(projects, project); return project;
+    },
+    setInventorySourceSummary(projectId, customerId, sourceSummary) {
+      const projects = list(); const project = projects.find((item) => item.id === projectId); if (!project) throw new Error('프로젝트를 찾을 수 없습니다.');
+      const customer = resolveCustomer(project, customerId); if (!customer) throw new Error('고객사를 찾을 수 없습니다.');
+      customer.inventory = { ...emptyInventory(), ...(customer.inventory ?? {}), sourceSummary: sourceSummary ?? '' };
+      updateProject(projects, project); return project;
     },
     addInventoryItem(projectId, customerId, input) {
       const projects = list(); const project = projects.find((item) => item.id === projectId); if (!project) throw new Error('프로젝트를 찾을 수 없습니다.');
