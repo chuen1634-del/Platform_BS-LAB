@@ -7,6 +7,16 @@ export const BUSINESS_LAB_MODULES = [
   { id: 'launch', number: '06', title: '신규 사업·상품 런칭', description: '표준 상품, 고객별 커스터마이징, PoC 전환, 확장 사업 모델을 정의합니다.', action: 'launch', cta: '사업화 구조 보기' },
 ];
 
+export const MODULE_NAV_ITEMS = [
+  { label: '홈', action: 'home' },
+  { label: '고객 분석', action: 'open-analysis' },
+  { label: '미팅 준비', action: 'pre-meeting' },
+  { label: '업종 조사', action: 'research' },
+  { label: '재고 데모', action: 'open-inventory-demo' },
+  { label: '제안서', action: 'open-solution' },
+  { label: '사업화', action: 'launch' },
+];
+
 export const PRE_MEETING_CHECKLIST = [
   { id: 'company-profile', title: '회사·사업 기본정보', description: '회사 규모, 주요 사업, 생산거점, 고객군, 조직 구조를 회사소개서에서 먼저 정리합니다.', source: '회사소개서·공개자료' },
   { id: 'system-environment', title: '시스템 환경 가설', description: 'ERP·MES·WMS·Excel 사용 여부와 데이터가 끊기는 구간을 질문 후보로 준비합니다.', source: '공개자료·사전 가설' },

@@ -30,6 +30,10 @@
 @media (max-width: 760px) { .flow-line { grid-template-columns: 1fr; } .flow-arrow { transform: rotate(90deg); } .flow-material { align-items: flex-start; flex-direction: column; } .flow-stock { text-align: left; } }
 .is-hidden { display: none !important; }
 .module-number { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 24px; border-radius: 999px; background: #eef2ff; color: #3730a3; font-size: 11px; font-weight: 800; }
+.module-bar { position: sticky; top: 0; z-index: 8; display: flex; gap: 6px; align-items: center; padding: 10px 0 14px; margin-bottom: 14px; background: var(--bg); overflow-x: auto; }
+.module-bar-button { flex: 0 0 auto; border: 1px solid #dbe4f0; border-radius: 999px; padding: 9px 13px; background: #fff; color: #475569; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.module-bar-button:hover, .module-bar-button.active { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
+.module-bar-button.back-button { margin-left: auto; border-color: #cbd5e1; color: #334155; }
 .workflow-banner { margin: 24px 0; padding: 18px 20px; border-radius: 16px; background: #0f172a; color: #fff; }
 .workflow-banner div { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .workflow-banner strong { font-size: 14px; }

@@ -8,7 +8,7 @@ import { buildNextActions, createDemoBlueprint, nextStepForResult } from './work
 import { createJoysonSafetyBlueprint } from './joyson-safety-demo.mjs';
 import { INPUT_OPTIONS, normalizeOtherValue } from './input-options.mjs';
 import { GUIDED_DEMO_STEPS, getGuidedDemoStep } from './guided-demo.mjs';
-import { BUSINESS_LAB_MODULES, PRE_MEETING_CHECKLIST, COMMERCIALIZATION_STAGES } from './business-lab-modules.mjs';
+import { BUSINESS_LAB_MODULES, MODULE_NAV_ITEMS, PRE_MEETING_CHECKLIST, COMMERCIALIZATION_STAGES } from './business-lab-modules.mjs';
 
 const app = document.querySelector('#app');
 const store = createStore();
@@ -237,6 +237,23 @@ function runGuidedDemo() {
   scheduleGuidedDemo();
 }
 
+function appendGlobalModuleBar() {
+  if (app.querySelector('.module-bar')) return;
+  const bar = document.createElement('nav');
+  bar.className = 'module-bar';
+  bar.setAttribute('aria-label', 'Business Lab modules');
+  bar.innerHTML = `${MODULE_NAV_ITEMS.map((item) => `<button type="button" class="module-bar-button ${state.viewMode === item.action || (item.action === 'open-analysis' && state.viewMode === 'analysis') ? 'active' : ''}" data-action="${item.action}">${item.label}</button>`).join('')}<button type="button" class="module-bar-button back-button" data-action="back">← 뒤로가기</button>`;
+  app.querySelector('.content')?.prepend(bar);
+}
+
+function goBack() {
+  if (state.guidedDemoTimer) clearTimeout(state.guidedDemoTimer);
+  state.guidedDemoTimer = null;
+  state.guidedDemoIndex = null;
+  state.viewMode = state.viewMode === 'analysis' || state.viewMode === 'example' ? 'home' : 'analysis';
+  render();
+}
+
 function scheduleGuidedDemo() {
   if (state.guidedDemoIndex === null) return;
   state.guidedDemoTimer = setTimeout(() => {
@@ -281,6 +298,7 @@ function appendCalculationGuide() {
 }
 
 function bind() {
+  appendGlobalModuleBar();
   appendGuidedDemo();
   appendCalculationGuide();
   app.querySelectorAll('[data-other-select]').forEach((select) => {
@@ -305,6 +323,7 @@ function bind() {
   app.querySelectorAll('[data-action="close-guided-demo"]').forEach((button) => button.addEventListener('click', () => { if (state.guidedDemoTimer) clearTimeout(state.guidedDemoTimer); state.guidedDemoTimer = null; state.guidedDemoIndex = null; render(); }));
   app.querySelectorAll('[data-action="back-welcome"]').forEach((button) => button.addEventListener('click', () => { state.viewMode = 'analysis'; render(); }));
   app.querySelectorAll('[data-action="home"]').forEach((button) => button.addEventListener('click', () => { state.viewMode = 'home'; render(); }));
+  app.querySelectorAll('[data-action="back"]').forEach((button) => button.addEventListener('click', goBack));
   app.querySelectorAll('[data-action="open-analysis"]').forEach((button) => button.addEventListener('click', () => openProjectModule('analysis')));
   app.querySelectorAll('[data-action="pre-meeting"]').forEach((button) => button.addEventListener('click', () => openProjectModule('pre-meeting')));
   app.querySelectorAll('[data-action="research"]').forEach((button) => button.addEventListener('click', () => openProjectModule('research')));
