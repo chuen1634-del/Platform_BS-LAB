@@ -29,6 +29,34 @@
 .source-note { background: #f8fbff; }
 @media (max-width: 760px) { .flow-line { grid-template-columns: 1fr; } .flow-arrow { transform: rotate(90deg); } .flow-material { align-items: flex-start; flex-direction: column; } .flow-stock { text-align: left; } }
 .is-hidden { display: none !important; }
+.module-number { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 24px; border-radius: 999px; background: #eef2ff; color: #3730a3; font-size: 11px; font-weight: 800; }
+.workflow-banner { margin: 24px 0; padding: 18px 20px; border-radius: 16px; background: #0f172a; color: #fff; }
+.workflow-banner div { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.workflow-banner strong { font-size: 14px; }
+.workflow-banner span { color: #93c5fd; font-size: 18px; }
+.workflow-banner small { display: block; color: #cbd5e1; margin-top: 10px; }
+.meeting-hero, .launch-hero { background: linear-gradient(135deg, #eff6ff, #ffffff); }
+.meeting-hero h3, .launch-hero h3 { max-width: 760px; font-size: 22px; line-height: 1.4; }
+.meeting-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+.checklist-grid, .research-grid, .launch-stages { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.checklist-card, .research-grid article, .launch-stages article { display: flex; gap: 12px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; }
+.checklist-icon { color: #2563eb; font-size: 20px; }
+.checklist-card strong, .checklist-card p, .checklist-card small, .research-grid strong, .research-grid p, .research-grid span, .launch-stages strong, .launch-stages p { display: block; }
+.checklist-card p, .research-grid p, .launch-stages p { margin: 6px 0; color: var(--muted); line-height: 1.5; }
+.checklist-card small, .research-grid span { color: #64748b; font-size: 12px; }
+.research-grid article { display: block; }
+.research-grid article strong { color: #1e3a8a; }
+.reference-table { overflow: auto; }
+.reference-table > div { display: grid; grid-template-columns: 1fr 2fr 1.2fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid #e2e8f0; }
+.reference-table > div:first-child { color: #64748b; font-size: 12px; }
+.reference-table span { color: var(--muted); }
+.launch-stages { grid-template-columns: repeat(5, 1fr); }
+.launch-stages article { display: block; }
+.launch-stages span { color: #2563eb; font-size: 12px; font-weight: 800; }
+.launch-stages strong { margin-top: 6px; }
+.launch-next, .research-next { background: #f8fafc; }
+@media (max-width: 900px) { .checklist-grid, .research-grid, .launch-stages { grid-template-columns: 1fr 1fr; } .launch-stages { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .checklist-grid, .research-grid, .launch-stages { grid-template-columns: 1fr; } .reference-table > div { grid-template-columns: 1fr; gap: 4px; } }
 .other-detail { margin-top: 8px; }
 .guided-demo-panel { border: 1px solid #93c5fd; background: linear-gradient(135deg, #eff6ff, #ffffff); }
 .guided-progress { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 16px 0; }
