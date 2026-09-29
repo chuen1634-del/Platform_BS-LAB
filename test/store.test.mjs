@@ -58,3 +58,43 @@ test('stores ROI and PoC details only on the selected customer', () => {
   assert.equal(store.getCustomer(project.id, second.id).poc.scope, '1개 공장');
   assert.equal(store.getCustomer(project.id, project.customers[0].id).poc, null);
 });
+
+test('stores inventory items and transactions only on the selected customer', () => {
+  const store = createStore({ storage: new Map() });
+  const project = store.createProject({ companyName: '한빛전자', industry: '제조', contactStage: 'pre-contact' });
+  const second = store.createCustomer(project.id, { companyName: '미래정밀', industry: '정밀 제조' });
+  store.addInventoryItem(project.id, second.id, { code: 'MAT-001', name: '알루미늄 판재', unit: 'EA', currentStock: 100, safetyStock: 20, dailyUsage: 10, leadTimeDays: 5 });
+  store.recordInventoryTransaction(project.id, second.id, { code: 'MAT-001', type: '출고', quantity: 10, note: '생산 투입' });
+
+  const selected = store.getCustomer(project.id, second.id);
+  const first = store.getCustomer(project.id, project.customers[0].id);
+  assert.equal(selected.inventory.items[0].currentStock, 90);
+  assert.equal(selected.inventory.transactions.length, 1);
+  assert.equal(first.inventory.items.length, 0);
+});
+
+test('stores production, BOM, purchase order, and receipt data per customer', () => {
+  const store = createStore({ storage: new Map() });
+  const project = store.createProject({ companyName: '한빛전자', industry: '제조', contactStage: 'pre-contact' });
+  const second = store.createCustomer(project.id, { companyName: '미래정밀', industry: '정밀 제조' });
+
+  store.addProductionPlan(project.id, second.id, { date: '2026-10-01', itemCode: 'FG-001', plannedQuantity: 100 });
+  store.addBomLine(project.id, second.id, { parentItemCode: 'FG-001', componentItemCode: 'MAT-001', quantityRequired: 2 });
+  store.addSupplierOrder(project.id, second.id, { id: 'PO-001', itemCode: 'MAT-001', quantity: 150, expectedDate: '2026-09-29' });
+  store.recordSupplierReceipt(project.id, second.id, { orderId: 'PO-001', itemCode: 'MAT-001', quantity: 50 });
+
+  const selected = store.getCustomer(project.id, second.id);
+  const first = store.getCustomer(project.id, project.customers[0].id);
+  assert.equal(selected.inventory.productionPlans[0].plannedQuantity, 100);
+  assert.equal(selected.inventory.bomLines[0].quantityRequired, 2);
+  assert.equal(selected.inventory.supplierOrders[0].quantity, 150);
+  assert.equal(selected.inventory.supplierReceipts[0].quantity, 50);
+  assert.equal(first.inventory.productionPlans.length, 0);
+});
+
+test('rejects invalid negative operational quantities', () => {
+  const store = createStore({ storage: new Map() });
+  const project = store.createProject({ companyName: '한빛전자', industry: '제조', contactStage: 'pre-contact' });
+  assert.throws(() => store.addProductionPlan(project.id, project.customers[0].id, { date: '2026-10-01', itemCode: 'FG-001', plannedQuantity: -1 }), /수량/);
+  assert.throws(() => store.addSupplierOrder(project.id, project.customers[0].id, { id: 'PO-1', itemCode: 'MAT-001', quantity: -1 }), /수량/);
+});
