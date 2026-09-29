@@ -4,6 +4,6 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "dev": "node server.mjs"
+    "dev": "node scripts/dev-server.mjs"
   }
 }
